@@ -109,6 +109,7 @@ function createDefaultMission(): Mission {
 interface MissionStore {
     mission: Mission;
     trajectoryResults: Map<string, TrajectoryResult>;
+    ghostTrajectoryResults: Map<string, TrajectoryResult>;
     optimizationResult: OptimizationResult | null;
     optimizationStatus: OptimizationStatus;
     optimizationIterations: OptimizationIteration[];
@@ -177,6 +178,7 @@ interface MissionStore {
 export const useMissionStore = create<MissionStore>((set, get) => ({
     mission: createDefaultMission(),
     trajectoryResults: new Map(),
+    ghostTrajectoryResults: new Map(),
     optimizationResult: null,
     optimizationStatus: 'idle',
     optimizationIterations: [],
@@ -453,7 +455,7 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
                     results.set(sc.id, result);
                 }
             }
-            set({ trajectoryResults: results, isPropagating: false });
+            set({ trajectoryResults: results, isPropagating: false, ghostTrajectoryResults: new Map() });
         } catch (e) {
             console.error('Propagation error:', e);
             set({ isPropagating: false });
@@ -461,11 +463,20 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
     },
 
     setOptimizationStatus: (status) => set({ optimizationStatus: status }),
-    addOptimizationIteration: (iter) => set((state) => ({
-        optimizationIterations: [...state.optimizationIterations, iter],
-    })),
-    setOptimizationResult: (result) => set({ optimizationResult: result }),
-    clearOptimizationHistory: () => set({ optimizationIterations: [], optimizationResult: null, optimizationLog: [] }),
+    addOptimizationIteration: (iter) => set((state) => {
+        const nextGhost = new Map(state.ghostTrajectoryResults);
+        if (iter.activeTrajectories) {
+            for (const t of iter.activeTrajectories) {
+                nextGhost.set(t.spacecraftId, t);
+            }
+        }
+        return {
+            optimizationIterations: [...state.optimizationIterations, iter],
+            ghostTrajectoryResults: nextGhost,
+        };
+    }),
+    setOptimizationResult: (result) => set({ optimizationResult: result, ghostTrajectoryResults: new Map() }),
+    clearOptimizationHistory: () => set({ optimizationIterations: [], optimizationResult: null, optimizationLog: [], ghostTrajectoryResults: new Map() }),
     setIsOptimizing: (v) => set({ isOptimizing: v }),
     addOptimizationLog: (line) => set((state) => ({
         optimizationLog: [...state.optimizationLog, line],

@@ -320,6 +320,7 @@ self.onmessage = async (e: MessageEvent) => {
                                 constraintViolations: violations,
                                 maxConstraintViolation: maxViolation,
                                 variables: rawUnscaledVariables,
+                                activeTrajectories: Array.from(results.values()),
                             };
                             iterations.push(iteration);
                             self.postMessage({ type: 'ITERATION', payload: iteration });
@@ -341,6 +342,7 @@ self.onmessage = async (e: MessageEvent) => {
                             constraintViolations: violations,
                             maxConstraintViolation: maxViolation,
                             variables: rawUnscaledVariables,
+                            activeTrajectories: Array.from(results.values()),
                         };
                         iterations.push(iteration);
                         self.postMessage({ type: 'ITERATION', payload: iteration });
@@ -361,6 +363,7 @@ self.onmessage = async (e: MessageEvent) => {
                     constraintViolations: violations,
                     maxConstraintViolation: maxViolation,
                     variables: rawUnscaledVariables,
+                    activeTrajectories: Array.from(results.values()),
                 };
                 iterations.push(iteration);
 

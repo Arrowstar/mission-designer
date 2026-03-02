@@ -270,6 +270,7 @@ export interface OptimizationIteration {
   constraintViolations: number[];
   maxConstraintViolation: number;
   variables: number[];
+  activeTrajectories?: TrajectoryResult[];
 }
 
 export type OptimizationStatus = 'idle' | 'running' | 'converged' | 'failed' | 'stopped';

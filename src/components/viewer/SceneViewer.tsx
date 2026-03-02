@@ -163,8 +163,8 @@ function ReferenceAxes() {
     );
 }
 
-function TrajectoryPaths({ plotFrame }: { plotFrame: string }) {
-    const trajectoryResults = useMissionStore(s => s.trajectoryResults);
+function TrajectoryPaths({ plotFrame, isGhost = false }: { plotFrame: string, isGhost?: boolean }) {
+    const trajectoryResults = useMissionStore(s => isGhost ? s.ghostTrajectoryResults : s.trajectoryResults);
     const mission = useMissionStore(s => s.mission);
 
     const scData = useMemo(() => {
@@ -195,7 +195,7 @@ function TrajectoryPaths({ plotFrame }: { plotFrame: string }) {
                 });
 
                 const thrustArrows: { pos: THREE.Vector3, dir: THREE.Vector3 }[] = [];
-                if (graphics.plotThrustVector && seg?.thrust.enabled) {
+                if (!isGhost && graphics.plotThrustVector && seg?.thrust.enabled) {
                     const step = Math.max(1, Math.floor(segResult.points.length / 15)); // ~15 arrows max
                     for (let j = 0; j < segResult.points.length; j += step) {
                         const p = segResult.points[j];
@@ -222,19 +222,25 @@ function TrajectoryPaths({ plotFrame }: { plotFrame: string }) {
                     }
                 }
 
+                const renderColor = isGhost ? '#aaaaaa' : graphics.color;
+                const renderStyle = isGhost ? 'dashed' : graphics.lineStyle;
+                const renderWidth = isGhost ? 1 : graphics.lineWidth;
+                const renderOpacity = isGhost ? 0.3 : 0.9;
+
                 geoms.push({
                     points: pts,
-                    color: graphics.color,
-                    style: graphics.lineStyle,
-                    width: graphics.lineWidth,
+                    color: renderColor,
+                    style: renderStyle,
+                    width: renderWidth,
                     segId: segResult.segmentId,
-                    arrows: thrustArrows
+                    arrows: thrustArrows,
+                    opacity: renderOpacity
                 });
             });
         });
 
         return geoms;
-    }, [trajectoryResults, scData, plotFrame]);
+    }, [trajectoryResults, scData, plotFrame, isGhost]);
 
     return (
         <>
@@ -254,7 +260,7 @@ function TrajectoryPaths({ plotFrame }: { plotFrame: string }) {
                             dashSize={dashSize}
                             gapSize={gapSize}
                             transparent
-                            opacity={0.9}
+                            opacity={g.opacity}
                         />
                         {g.arrows.map((arr: any, idx: number) => (
                             <arrowHelper
@@ -337,6 +343,7 @@ export function SceneViewer() {
 
                 <ReferenceAxes />
                 <TrajectoryPaths plotFrame={plotFrame} />
+                <TrajectoryPaths plotFrame={plotFrame} isGhost={true} />
 
                 <OrbitControls
                     enableDamping
