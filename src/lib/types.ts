@@ -197,6 +197,7 @@ export interface OptimizationConfig {
   xtolRel: number;
   xtolAbs?: number;
   stopval?: number;
+  slsqpMaxStepSize?: number;
   variables: OptVariable[];
   objectives: OptObjective[];
   constraints: OptConstraint[];

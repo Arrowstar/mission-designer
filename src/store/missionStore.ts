@@ -80,7 +80,7 @@ function createDefaultMission(): Mission {
         name: 'New Mission',
         spacecraft: [createDefaultSpacecraft()],
         optimizationConfig: {
-            algorithm: 'LN_COBYLA',
+            algorithm: 'LD_SLSQP',
             maxIterations: 200,
             ftolRel: 1e-6,
             xtolRel: 1e-6,

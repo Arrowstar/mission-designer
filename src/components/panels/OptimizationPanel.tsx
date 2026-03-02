@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useMissionStore } from '../../store/missionStore';
+import { OptimizerOptionsDialog } from './OptimizerOptionsDialog';
 import {
     OptVariable,
     OptObjective,
@@ -30,6 +31,8 @@ export function OptimizationPanel() {
     const propagateAll = useMissionStore(s => s.propagateAll);
     const setActiveRightTab = useMissionStore(s => s.setActiveRightTab);
     const applyOptimizationResult = useMissionStore(s => s.applyOptimizationResult);
+
+    const [showOptions, setShowOptions] = useState(false);
 
     const stopFlagRef = useRef(false);
 
@@ -183,70 +186,25 @@ export function OptimizationPanel() {
     return (
         <div className="fade-in">
             {/* Algorithm Settings */}
-            <div className="section">
-                <div className="section-title" style={{ marginBottom: '8px' }}>Algorithm Settings</div>
-                <div className="form-group">
-                    <label className="form-label">Algorithm</label>
-                    <select
-                        className="form-select"
-                        value={config.algorithm}
-                        onChange={e => updateConfig({ algorithm: e.target.value as OptimizationAlgorithm })}
-                        id="opt-algorithm"
-                    >
-                        <option value="LN_COBYLA">COBYLA (Derivative-free)</option>
-                        <option value="LN_BOBYQA">BOBYQA (Derivative-free)</option>
-                        <option value="LD_SLSQP">SLSQP (Gradient-based)</option>
-                        <option value="LD_MMA">MMA (Gradient-based)</option>
-                        <option value="GN_ISRES">ISRES (Global)</option>
-                    </select>
-                </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">Max Iterations</label>
-                        <input className="form-input" type="number" value={config.maxIterations}
-                            onChange={e => updateConfig({ maxIterations: parseInt(e.target.value) || 100 })} />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">F Tol (rel)</label>
-                        <input className="form-input" type="number" step="1e-7" value={config.ftolRel}
-                            onChange={e => updateConfig({ ftolRel: parseFloat(e.target.value) || 1e-6 })} />
+            <div className="section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <div className="section-title" style={{ marginBottom: '4px' }}>Algorithm Engine</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                        {config.algorithm === 'LN_COBYLA' ? 'COBYLA (Derivative-free)' :
+                            config.algorithm === 'LN_BOBYQA' ? 'BOBYQA (Derivative-free)' :
+                                config.algorithm === 'LD_SLSQP' ? 'SLSQP (Gradient-based)' :
+                                    config.algorithm === 'LD_MMA' ? 'MMA (Gradient-based)' :
+                                        config.algorithm === 'GN_ISRES' ? 'ISRES (Global)' : config.algorithm}
+                        {' '}&middot; {config.maxIterations} Max Iterations
                     </div>
                 </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">X Tol (rel)</label>
-                        <input className="form-input" type="number" step="1e-7" value={config.xtolRel}
-                            onChange={e => updateConfig({ xtolRel: parseFloat(e.target.value) || 1e-6 })} />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">F Tol (abs)</label>
-                        <input className="form-input" type="number" step="1e-7" value={config.ftolAbs ?? ''}
-                            onChange={e => {
-                                const v = e.target.value;
-                                updateConfig({ ftolAbs: v === '' ? undefined : parseFloat(v) || undefined });
-                            }} />
-                    </div>
-                </div>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label className="form-label">X Tol (abs)</label>
-                        <input className="form-input" type="number" step="1e-7" value={config.xtolAbs ?? ''}
-                            onChange={e => {
-                                const v = e.target.value;
-                                updateConfig({ xtolAbs: v === '' ? undefined : parseFloat(v) || undefined });
-                            }} />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">Stop Value</label>
-                        <input className="form-input" type="number" step="0.01" value={config.stopval ?? ''}
-                            placeholder="disabled"
-                            onChange={e => {
-                                const v = e.target.value;
-                                updateConfig({ stopval: v === '' ? undefined : parseFloat(v) });
-                            }} />
-                    </div>
-                </div>
+                <button className="btn btn-secondary btn-sm" onClick={() => setShowOptions(true)}>
+                    ⚙️ Options
+                </button>
             </div>
+
+            {showOptions && <OptimizerOptionsDialog onClose={() => setShowOptions(false)} />}
+
 
             {/* Variables */}
             <div className="section">
