@@ -226,7 +226,7 @@ self.onmessage = async (e: MessageEvent) => {
 
                 // Numerical gradient (if needed)
                 if (grad) {
-                    const h = 1e-6;
+                    const h = config.slsqpMaxStepSize || 1e-6;
                     for (let i = 0; i < nVars; i++) {
                         const xp = [...x];
                         xp[i] += h;
@@ -424,7 +424,7 @@ self.onmessage = async (e: MessageEvent) => {
 
                     // Numerical gradient
                     if (grad) {
-                        const h = 1e-6;
+                        const h = config.slsqpMaxStepSize || 1e-6;
                         for (let i = 0; i < nVars; i++) {
                             const xp = [...x];
                             xp[i] += h;
